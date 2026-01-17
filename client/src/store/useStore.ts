@@ -65,7 +65,7 @@ interface AppState {
     fetchData: (date?: Date) => Promise<void>;
 }
 
-export const useStore = create<AppState>((set, get) => ({
+export const useStore = create<AppState>((set) => ({
     selectedDate: new Date(),
     setSelectedDate: (date) => set({ selectedDate: date }),
 

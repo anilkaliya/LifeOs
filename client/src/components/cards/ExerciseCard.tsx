@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Plus, Dumbbell, Trash2 } from 'lucide-react';
 import { useStore } from '../../store/useStore';
 import { LogWorkoutModal } from '../modals/LogWorkoutModal';

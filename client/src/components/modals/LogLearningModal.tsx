@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, BookOpen } from 'lucide-react';
+import { BookOpen } from 'lucide-react';
 import { useStore } from '../../store/useStore';
 import { Modal } from '../ui/Modal';
 

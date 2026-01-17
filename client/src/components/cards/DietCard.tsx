@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Plus, Utensils, Trash2 } from 'lucide-react';
 import { useStore } from '../../store/useStore';
 import { LogMealModal } from '../modals/LogMealModal';

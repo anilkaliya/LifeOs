@@ -1,4 +1,4 @@
-import { LogIn, Sparkles } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 
 export function Login() {
     const handleGoogleLogin = () => {

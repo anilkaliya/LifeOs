@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Sparkles, Droplets, Sun, Check, Trash2 } from 'lucide-react';
 import { useStore } from '../../store/useStore';
 

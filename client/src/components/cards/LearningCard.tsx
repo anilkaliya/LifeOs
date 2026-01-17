@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { BookOpen, Plus, Trash2 } from 'lucide-react';
 import { useStore } from '../../store/useStore';
 import { isSameDay, parseISO } from 'date-fns';
