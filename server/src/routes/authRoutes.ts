@@ -9,10 +9,17 @@ router.get('/google', passport.authenticate('google', { scope: ['profile', 'emai
 // Google OAuth callback
 router.get(
     '/callback/google',
-    passport.authenticate('google', { failureRedirect: 'http://localhost:5173/login' }),
+    passport.authenticate('google', {
+        failureRedirect: process.env.NODE_ENV === 'production'
+            ? 'https://life-c52d5i4sr-anil-kaliyas-projects.vercel.app/login'
+            : 'http://localhost:5173/login'
+    }),
     (req, res) => {
         // Successful authentication, redirect to frontend
-        res.redirect('http://localhost:5173');
+        const clientUrl = process.env.NODE_ENV === 'production'
+            ? 'https://life-c52d5i4sr-anil-kaliyas-projects.vercel.app'
+            : 'http://localhost:5173';
+        res.redirect(clientUrl);
     }
 );
 

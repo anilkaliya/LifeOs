@@ -2,9 +2,18 @@ import { Sparkles } from 'lucide-react';
 
 export function Login() {
     const handleGoogleLogin = () => {
-        const baseUrl = window.location.origin === 'https://life-c52d5i4sr-anil-kaliyas-projects.vercel.app'
-            ? 'https://life-c52d5i4sr-anil-kaliyas-projects.vercel.app'
-            : 'http://localhost:5001';
+        // Dynamic base URL based on current environment
+        const baseUrl = window.location.origin.includes('localhost')
+            ? 'http://localhost:5001'
+            : window.location.origin;
+
+        // In production (Vercel), redirection is handled via rewrites, so /api is relative
+        // But for clarity and robustness with the separate server, let's keep full path logic
+        /* 
+           Development: http://localhost:5173 -> http://localhost:5001/api/auth/google
+           Production: https://lifeos.vercel.app -> https://lifeos.vercel.app/api/auth/google
+        */
+
         window.location.href = `${baseUrl}/api/auth/google`;
     };
 
