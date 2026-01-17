@@ -11,13 +11,13 @@ router.get(
     '/callback/google',
     passport.authenticate('google', {
         failureRedirect: process.env.NODE_ENV === 'production'
-            ? `${process.env.APP_URL}/login`
+            ? `https://life-os-lilac-six.vercel.app/login`
             : 'http://localhost:5173/login'
     }),
     (req, res) => {
         // Successful authentication, redirect to frontend
         const clientUrl = process.env.NODE_ENV === 'production'
-            ? `${process.env.APP_URL}`
+            ? `https://life-os-lilac-six.vercel.app`
             : 'http://localhost:5173';
         res.redirect(clientUrl);
     }

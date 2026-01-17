@@ -9,7 +9,7 @@ passport.use(
             clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
             callbackURL:
                 process.env.NODE_ENV === 'production'
-                    ? `${process.env.APP_URL}/api/auth/callback/google`
+                    ? `https://life-os-lilac-six.vercel.app/api/auth/callback/google`
                     : 'http://localhost:5001/api/auth/callback/google',
         },
         async (accessToken, refreshToken, profile, done) => {
