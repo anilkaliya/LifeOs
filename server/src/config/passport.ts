@@ -1,5 +1,6 @@
 import passport from 'passport';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
+import { Strategy as LocalStrategy } from 'passport-local';
 import User from '../models/User';
 
 passport.use(
@@ -9,7 +10,7 @@ passport.use(
             clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
             callbackURL:
                 process.env.NODE_ENV === 'production'
-                    ? `https://life-os-lilac-six.vercel.app/api/auth/callback/google`
+                    ? 'https://life-n4bbk8uvk-anil-kaliyas-projects.vercel.app/api/auth/callback/google'
                     : 'http://localhost:5001/api/auth/callback/google',
         },
         async (accessToken, refreshToken, profile, done) => {
@@ -37,6 +38,26 @@ passport.use(
                 return done(null, user);
             } catch (error) {
                 return done(error as Error, undefined);
+            }
+        }
+    )
+);
+
+passport.use(
+    new LocalStrategy(
+        {
+            usernameField: 'email',
+            passwordField: 'password',
+        },
+        async (email, password, done) => {
+            try {
+                const user = await User.findOne({ where: { email } });
+                if (!user || !(await user.validatePassword(password))) {
+                    return done(null, false, { message: 'Invalid email or password' });
+                }
+                return done(null, user);
+            } catch (error) {
+                return done(error);
             }
         }
     )
