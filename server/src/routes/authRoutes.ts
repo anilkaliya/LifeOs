@@ -11,13 +11,13 @@ router.get(
     '/callback/google',
     passport.authenticate('google', {
         failureRedirect: process.env.NODE_ENV === 'production'
-            ? 'https://life-c52d5i4sr-anil-kaliyas-projects.vercel.app/login'
+            ? `${process.env.APP_URL}/login`
             : 'http://localhost:5173/login'
     }),
     (req, res) => {
         // Successful authentication, redirect to frontend
         const clientUrl = process.env.NODE_ENV === 'production'
-            ? 'https://life-c52d5i4sr-anil-kaliyas-projects.vercel.app'
+            ? `${process.env.APP_URL}`
             : 'http://localhost:5173';
         res.redirect(clientUrl);
     }
