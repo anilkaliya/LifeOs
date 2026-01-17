@@ -1,4 +1,4 @@
-import { X as XIcon } from 'lucide-react';
+
 import { Modal } from '../ui/Modal';
 import { format } from 'date-fns';
 
