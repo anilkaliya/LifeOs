@@ -7,7 +7,10 @@ passport.use(
         {
             clientID: process.env.GOOGLE_CLIENT_ID!,
             clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-            callbackURL: 'http://localhost:5001/api/auth/callback/google',
+            callbackURL:
+                process.env.NODE_ENV === 'production'
+                    ? 'https://life-c52d5i4sr-anil-kaliyas-projects.vercel.app/api/auth/callback/google'
+                    : 'http://localhost:5001/api/auth/callback/google',
         },
         async (accessToken, refreshToken, profile, done) => {
             try {

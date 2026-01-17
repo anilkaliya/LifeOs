@@ -2,7 +2,10 @@ import { Sparkles } from 'lucide-react';
 
 export function Login() {
     const handleGoogleLogin = () => {
-        window.location.href = 'http://localhost:5001/api/auth/google';
+        const baseUrl = window.location.origin === 'https://life-c52d5i4sr-anil-kaliyas-projects.vercel.app'
+            ? 'https://life-c52d5i4sr-anil-kaliyas-projects.vercel.app'
+            : 'http://localhost:5001';
+        window.location.href = `${baseUrl}/api/auth/google`;
     };
 
     return (
