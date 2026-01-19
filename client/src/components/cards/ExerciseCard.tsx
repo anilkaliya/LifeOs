@@ -41,10 +41,10 @@ export function ExerciseCard() {
                                         e.stopPropagation();
                                         deleteWorkoutLog(log.id);
                                     }}
-                                    className="absolute top-2.5 right-2.5 text-gray-600 hover:text-red-500 opacity-0 group-hover/item:opacity-100 transition-all"
+                                    className="absolute top-1 right-1 p-2 text-gray-400 hover:text-red-500 hover:bg-white/10 rounded-lg transition-all"
                                     title="Delete"
                                 >
-                                    <Trash2 size={14} />
+                                    <Trash2 size={16} />
                                 </button>
                             </div>
                         ))

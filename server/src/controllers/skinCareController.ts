@@ -18,7 +18,7 @@ export const getSkinCareLog = async (req: Request, res: Response) => {
 export const updateSkinCareLog = async (req: Request, res: Response) => {
     try {
         const userId = (req.user as any)?.id;
-        const { date, detan, oiling, sunscreen } = req.body;
+        const { date, detan, oiling, sunscreen, customRoutine } = req.body;
 
         const [log, created] = await SkinCareLog.findOrCreate({
             where: { date, userId },
@@ -27,7 +27,8 @@ export const updateSkinCareLog = async (req: Request, res: Response) => {
                 userId,
                 detan: false,
                 oiling: false,
-                sunscreen: false
+                sunscreen: false,
+                customRoutine: ''
             }
         });
 
@@ -35,6 +36,7 @@ export const updateSkinCareLog = async (req: Request, res: Response) => {
         if (detan !== undefined) log.detan = detan;
         if (oiling !== undefined) log.oiling = oiling;
         if (sunscreen !== undefined) log.sunscreen = sunscreen;
+        if (customRoutine !== undefined) log.customRoutine = customRoutine;
 
         await log.save();
         res.json(log);

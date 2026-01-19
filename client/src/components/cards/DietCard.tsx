@@ -59,10 +59,10 @@ export function DietCard() {
                                             e.stopPropagation();
                                             deleteDietLog(log.id);
                                         }}
-                                        className="text-gray-600 hover:text-red-500 opacity-0 group-hover/item:opacity-100 transition-all"
+                                        className="p-2 -mr-2 text-gray-400 hover:text-red-500 hover:bg-white/10 rounded-lg transition-all"
                                         title="Delete"
                                     >
-                                        <Trash2 size={14} />
+                                        <Trash2 size={16} />
                                     </button>
                                 </div>
                             </div>

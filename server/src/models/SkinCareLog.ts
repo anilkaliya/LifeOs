@@ -7,10 +7,11 @@ interface SkinCareAttributes {
     detan: boolean;
     oiling: boolean;
     sunscreen: boolean;
+    customRoutine?: string;
     userId: number;
 }
 
-interface SkinCareCreationAttributes extends Optional<SkinCareAttributes, 'id' | 'detan' | 'oiling' | 'sunscreen'> { }
+interface SkinCareCreationAttributes extends Optional<SkinCareAttributes, 'id' | 'detan' | 'oiling' | 'sunscreen' | 'customRoutine'> { }
 
 class SkinCareLog extends Model<SkinCareAttributes, SkinCareCreationAttributes> implements SkinCareAttributes {
     public id!: number;
@@ -18,6 +19,7 @@ class SkinCareLog extends Model<SkinCareAttributes, SkinCareCreationAttributes> 
     public detan!: boolean;
     public oiling!: boolean;
     public sunscreen!: boolean;
+    public customRoutine?: string;
     public userId!: number;
 
     public readonly createdAt!: Date;
@@ -47,6 +49,10 @@ SkinCareLog.init(
         sunscreen: {
             type: DataTypes.BOOLEAN,
             defaultValue: false,
+        },
+        customRoutine: {
+            type: DataTypes.TEXT,
+            allowNull: true,
         },
         userId: {
             type: DataTypes.INTEGER,

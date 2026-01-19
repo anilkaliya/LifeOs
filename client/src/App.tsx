@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Layout } from './components/Layout';
 import { Dashboard } from './components/Dashboard';
+import { AnalyticsDashboard } from './components/AnalyticsDashboard'; // Import added
 import { Login } from './components/Login';
 import { useStore } from './store/useStore';
 
@@ -34,12 +35,27 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<Login />} />
+// In App.tsx
+        import {AnalyticsDashboard} from './components/AnalyticsDashboard';
+
+        // ...
+
         <Route
           path="/"
           element={
             <ProtectedRoute>
               <Layout>
                 <Dashboard />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/analytics"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <AnalyticsDashboard />
               </Layout>
             </ProtectedRoute>
           }

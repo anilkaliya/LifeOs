@@ -38,15 +38,17 @@ export function Layout({ children }: { children: React.ReactNode }) {
     const [isOpen, setIsOpen] = React.useState(false);
     const { user } = useStore();
 
-    const NavItem = ({ icon: Icon, label, active = false }: { icon: any, label: string, active?: boolean }) => (
-        <button className={cn(
-            "flex items-center space-x-3 w-full p-3 rounded-xl transition-all",
-            active ? "bg-primary/20 text-primary" : "text-gray-400 hover:bg-white/5 hover:text-white"
-        )}>
-            <Icon size={24} />
-            <span className={cn("font-medium", !isOpen && "lg:hidden")}>{label}</span>
-        </button>
-    );
+    const NavItem = ({ icon: Icon, label, active, onClick }: { icon: any; label: string; active?: boolean; onClick?: () => void }) => {
+        return (
+            <div
+                onClick={onClick}
+                className={`p-3 rounded-xl flex items-center gap-3 cursor-pointer transition-all ${active ? 'bg-white/10 text-white' : 'hover:bg-white/5 text-gray-400 hover:text-white'}`}
+            >
+                <Icon size={20} />
+                <span className={cn("font-medium", !isOpen && "lg:hidden")}>{label}</span>
+            </div>
+        );
+    };
 
     return (
         <div className="flex min-h-screen bg-background text-white overflow-hidden">
@@ -67,9 +69,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
                     </div>
 
                     <nav className="flex-1 space-y-2">
-                        <NavItem icon={LayoutDashboard} label="Dashboard" active />
+                        <NavItem icon={LayoutDashboard} label="Dashboard" active={window.location.pathname === '/'} onClick={() => window.location.href = '/'} />
+                        <NavItem icon={PieChart} label="Analytics" active={window.location.pathname === '/analytics'} onClick={() => window.location.href = '/analytics'} />
                         <NavItem icon={Calendar} label="History" />
-                        <NavItem icon={PieChart} label="Analytics" />
                         <NavItem icon={Settings} label="Settings" />
                     </nav>
 

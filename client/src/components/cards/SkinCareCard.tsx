@@ -7,24 +7,32 @@ export function SkinCareCard() {
     const [localState, setLocalState] = useState({
         detan: false,
         oiling: false,
-        sunscreen: false
+        sunscreen: false,
+        customRoutine: ''
     });
+
+    // Sync specific fields on mount is handled by store fetching, 
+    // but typically we might want to initialize local state from store if needed.
+    // However, existing logic seems to use local state for "new" entry toggling and then clears it.
+    // Let's stick to that pattern but maybe pre-fill customRoutine if user wants to edit?
+    // The current pattern clears state on submit. Let's keep it consistent.
 
     const handleToggle = (field: 'detan' | 'oiling' | 'sunscreen') => {
         setLocalState(prev => ({ ...prev, [field]: !prev[field] }));
     };
 
     const handleSubmit = async () => {
-        if (!localState.detan && !localState.oiling && !localState.sunscreen) return;
+        if (!localState.detan && !localState.oiling && !localState.sunscreen && !localState.customRoutine.trim()) return;
 
-        await saveSkinCare(localState.detan, localState.oiling, localState.sunscreen);
-        setLocalState({ detan: false, oiling: false, sunscreen: false });
+        await saveSkinCare(localState.detan, localState.oiling, localState.sunscreen, localState.customRoutine);
+        setLocalState({ detan: false, oiling: false, sunscreen: false, customRoutine: '' });
     };
 
     const appliedItems = [];
-    if (skinCareLog?.detan) appliedItems.push({ icon: Sparkles, label: 'Applied Detan Mask', color: '#f59e0b' });
-    if (skinCareLog?.oiling) appliedItems.push({ icon: Droplets, label: 'Applied Oil', color: '#8b5cf6' });
-    if (skinCareLog?.sunscreen) appliedItems.push({ icon: Sun, label: 'Applied Sunscreen', color: '#facc15' });
+    if (skinCareLog?.detan) appliedItems.push({ icon: Sparkles, label: 'Applied Detan Mask', color: '#f59e0b', key: 'detan' });
+    if (skinCareLog?.oiling) appliedItems.push({ icon: Droplets, label: 'Applied Oil', color: '#8b5cf6', key: 'oiling' });
+    if (skinCareLog?.sunscreen) appliedItems.push({ icon: Sun, label: 'Applied Sunscreen', color: '#facc15', key: 'sunscreen' });
+    if (skinCareLog?.customRoutine) appliedItems.push({ icon: Check, label: skinCareLog.customRoutine, color: '#34d399', key: 'customRoutine' });
 
     return (
         <div className="p-6 bg-card/40 backdrop-blur-md border border-white/5 rounded-3xl h-full flex flex-col relative overflow-hidden">
@@ -38,32 +46,35 @@ export function SkinCareCard() {
             </div>
 
             {/* Saved Logs at TOP */}
-            <div className="mb-3 min-h-[60px]">
+            <div className="mb-3 min-h-[60px] max-h-[150px] overflow-y-auto custom-scrollbar">
                 {appliedItems.length > 0 ? (
                     <div className="space-y-2">
                         {appliedItems.map((item, index) => (
                             <div key={index} className="flex items-center justify-between gap-2 bg-white/5 p-2 rounded-lg group/item">
-                                <div className="flex items-center gap-2">
-                                    <item.icon size={14} style={{ color: item.color }} />
-                                    <span className="text-sm font-medium">{item.label}</span>
+                                <div className="flex items-center gap-2 overflow-hidden">
+                                    <item.icon size={14} style={{ color: item.color }} className="flex-shrink-0" />
+                                    <span className="text-sm font-medium truncate">{item.label}</span>
                                 </div>
                                 <button
                                     onClick={() => {
-                                        // Re-save with the item toggled off
+                                        // Re-save with the item toggled off or cleared
                                         const newState = {
                                             detan: skinCareLog?.detan || false,
                                             oiling: skinCareLog?.oiling || false,
-                                            sunscreen: skinCareLog?.sunscreen || false
+                                            sunscreen: skinCareLog?.sunscreen || false,
+                                            customRoutine: skinCareLog?.customRoutine || ''
                                         };
-                                        if (item.label.includes('Detan')) newState.detan = false;
-                                        else if (item.label.includes('Oil')) newState.oiling = false;
-                                        else if (item.label.includes('Sunscreen')) newState.sunscreen = false;
-                                        saveSkinCare(newState.detan, newState.oiling, newState.sunscreen);
+                                        if (item.key === 'detan') newState.detan = false;
+                                        else if (item.key === 'oiling') newState.oiling = false;
+                                        else if (item.key === 'sunscreen') newState.sunscreen = false;
+                                        else if (item.key === 'customRoutine') newState.customRoutine = '';
+
+                                        saveSkinCare(newState.detan, newState.oiling, newState.sunscreen, newState.customRoutine);
                                     }}
-                                    className="text-gray-600 hover:text-red-500 opacity-0 group-hover/item:opacity-100 transition-all"
+                                    className="p-2 -mr-2 text-gray-400 hover:text-red-500 hover:bg-white/10 rounded-lg transition-all flex-shrink-0"
                                     title="Remove"
                                 >
-                                    <Trash2 size={14} />
+                                    <Trash2 size={16} />
                                 </button>
                             </div>
                         ))}
@@ -75,7 +86,7 @@ export function SkinCareCard() {
 
             <div className="border-t border-white/10 mb-3" />
 
-            {/* Checkbox Form */}
+            {/* Input Form */}
             <div className="space-y-3 mt-auto">
                 <label className="text-xs font-bold text-gray-500 uppercase block">Log Routine</label>
 
@@ -106,11 +117,22 @@ export function SkinCareCard() {
                             </div>
                         </div>
                     ))}
+
+                    {/* Custom Routine Input */}
+                    <div className="bg-white/5 p-3 rounded-xl">
+                        <input
+                            type="text"
+                            placeholder="Add custom step (e.g., Night Serum)..."
+                            value={localState.customRoutine}
+                            onChange={(e) => setLocalState(prev => ({ ...prev, customRoutine: e.target.value }))}
+                            className="w-full bg-transparent border-none focus:ring-0 text-sm text-white placeholder:text-gray-500 p-0"
+                        />
+                    </div>
                 </div>
 
                 <button
                     onClick={handleSubmit}
-                    disabled={!localState.detan && !localState.oiling && !localState.sunscreen}
+                    disabled={!localState.detan && !localState.oiling && !localState.sunscreen && !localState.customRoutine.trim()}
                     className="w-full bg-gradient-to-r from-teal-600 to-emerald-600 p-3 rounded-xl font-bold hover:shadow-[0_0_20px_rgba(16,185,129,0.3)] transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                     SAVE LOG

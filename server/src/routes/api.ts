@@ -27,4 +27,8 @@ router.delete('/learning/:id', deleteLearningSession);
 router.get('/skincare/:date', getSkinCareLog);
 router.post('/skincare', updateSkinCareLog);
 
+// --- Analytics ---
+import { getAnalytics } from '../controllers';
+router.get('/analytics', getAnalytics);
+
 export default router;

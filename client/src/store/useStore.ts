@@ -63,6 +63,14 @@ interface AppState {
     logout: () => Promise<void>;
 
     fetchData: (date?: Date) => Promise<void>;
+
+    // Analytics
+    analyticsData: {
+        totals: { calories: number; workouts: number; learningMinutes: number; skincareDays: number };
+        chartData: any[];
+        logs: any[];
+    } | null;
+    fetchAnalytics: (startDate: string, endDate: string, search?: string) => Promise<void>;
 }
 
 export const useStore = create<AppState>((set) => ({
@@ -150,8 +158,8 @@ export const useStore = create<AppState>((set) => ({
         }
     },
 
-    skinCareLog: { date: format(new Date(), 'yyyy-MM-dd'), detan: false, oiling: false, sunscreen: false },
-    saveSkinCare: async (detan: boolean, oiling: boolean, sunscreen: boolean) => {
+    skinCareLog: { date: format(new Date(), 'yyyy-MM-dd'), detan: false, oiling: false, sunscreen: false, customRoutine: '' },
+    saveSkinCare: async (detan: boolean, oiling: boolean, sunscreen: boolean, customRoutine?: string) => {
         const dateStr = format(new Date(), 'yyyy-MM-dd');
 
         // Optimistic update
@@ -160,7 +168,8 @@ export const useStore = create<AppState>((set) => ({
                 date: dateStr,
                 detan,
                 oiling,
-                sunscreen
+                sunscreen,
+                customRoutine
             }
         });
 
@@ -172,7 +181,8 @@ export const useStore = create<AppState>((set) => ({
                     date: dateStr,
                     detan,
                     oiling,
-                    sunscreen
+                    sunscreen,
+                    customRoutine
                 }),
                 credentials: 'include',
             });
@@ -210,6 +220,8 @@ export const useStore = create<AppState>((set) => ({
     isAuthenticated: false,
     isLoading: true,
 
+
+
     checkAuth: async () => {
         try {
             const res = await fetch(`${API_URL}/auth/me`, {
@@ -238,4 +250,20 @@ export const useStore = create<AppState>((set) => ({
             console.error('Logout failed:', error);
         }
     },
+
+    analyticsData: null,
+    fetchAnalytics: async (startDate, endDate, search = '') => {
+        try {
+            const query = new URLSearchParams({ startDate, endDate, search }).toString();
+            const res = await fetch(`${API_URL}/analytics?${query}`, {
+                credentials: 'include',
+            });
+            if (res.ok) {
+                const data = await res.json();
+                set({ analyticsData: data });
+            }
+        } catch (error) {
+            console.error('Failed to fetch analytics:', error);
+        }
+    }
 }));
