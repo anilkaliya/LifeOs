@@ -6,24 +6,38 @@ import { Search, Activity, BookOpen, Sparkles, Utensils, Dumbbell } from 'lucide
 
 export function AnalyticsDashboard() {
     const { fetchAnalytics, analyticsData } = useStore();
-    const [dateRange, setDateRange] = useState('7days'); // 7days, 30days
+    const [dateRange, setDateRange] = useState('7days'); // 7days, 30days, custom
     const [search, setSearch] = useState('');
+    const [customStart, setCustomStart] = useState(format(subDays(new Date(), 7), 'yyyy-MM-dd'));
+    const [customEnd, setCustomEnd] = useState(format(new Date(), 'yyyy-MM-dd'));
 
     useEffect(() => {
         // Calculate date range
         const end = new Date();
         let start = new Date();
-        if (dateRange === '7days') start = subDays(end, 7);
-        if (dateRange === '30days') start = subDays(end, 30);
+        let startDateStr = '';
+        let endDateStr = '';
 
-        const startDate = format(start, 'yyyy-MM-dd');
-        const endDate = format(end, 'yyyy-MM-dd');
+        if (dateRange === '7days') {
+            start = subDays(end, 7);
+            startDateStr = format(start, 'yyyy-MM-dd');
+            endDateStr = format(end, 'yyyy-MM-dd');
+        } else if (dateRange === '30days') {
+            start = subDays(end, 30);
+            startDateStr = format(start, 'yyyy-MM-dd');
+            endDateStr = format(end, 'yyyy-MM-dd');
+        } else if (dateRange === 'custom') {
+            startDateStr = customStart;
+            endDateStr = customEnd;
+        }
 
         const timeoutId = setTimeout(() => {
-            fetchAnalytics(startDate, endDate, search);
+            if (startDateStr && endDateStr) {
+                fetchAnalytics(startDateStr, endDateStr, search);
+            }
         }, 500); // Debounce search
         return () => clearTimeout(timeoutId);
-    }, [dateRange, search, fetchAnalytics]);
+    }, [dateRange, search, fetchAnalytics, customStart, customEnd]);
 
     if (!analyticsData) return <div className="text-white p-10">Loading analytics...</div>;
 
@@ -51,6 +65,23 @@ export function AnalyticsDashboard() {
                             className="bg-white/5 border border-white/10 rounded-xl py-2 pl-10 pr-4 text-white placeholder:text-gray-600 focus:outline-none focus:border-blue-500 w-full sm:w-64 transition-all"
                         />
                     </div>
+                    {dateRange === 'custom' && (
+                        <div className="flex gap-2 items-center">
+                            <input
+                                type="date"
+                                value={customStart}
+                                onChange={(e) => setCustomStart(e.target.value)}
+                                className="bg-white/5 border border-white/10 rounded-xl py-2 px-3 text-white text-sm focus:outline-none focus:border-blue-500"
+                            />
+                            <span className="text-gray-500">-</span>
+                            <input
+                                type="date"
+                                value={customEnd}
+                                onChange={(e) => setCustomEnd(e.target.value)}
+                                className="bg-white/5 border border-white/10 rounded-xl py-2 px-3 text-white text-sm focus:outline-none focus:border-blue-500"
+                            />
+                        </div>
+                    )}
                     <select
                         value={dateRange}
                         onChange={(e) => setDateRange(e.target.value)}
@@ -58,6 +89,7 @@ export function AnalyticsDashboard() {
                     >
                         <option value="7days">Last 7 Days</option>
                         <option value="30days">Last 30 Days</option>
+                        <option value="custom">Custom Range</option>
                     </select>
                 </div>
             </div>

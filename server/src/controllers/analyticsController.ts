@@ -12,13 +12,15 @@ export const getAnalytics = async (req: Request, res: Response) => {
         }
 
         // Ensure endDate includes the entire day
-        // If dates are strings 'YYYY-MM-DD', BETWEEN includes them for DATEONLY.
-        // But if comparisons happen against formatted strings, let's be safe.
+        let endDateTime = endDate;
+        if (endDate && endDate.match(/^\d{4}-\d{2}-\d{2}$/)) {
+            endDateTime = `${endDate} 23:59:59.999`;
+        }
 
         const dateFilter = {
             userId,
             date: {
-                [Op.between]: [startDate, endDate]
+                [Op.between]: [startDate, endDateTime]
             }
         };
 
