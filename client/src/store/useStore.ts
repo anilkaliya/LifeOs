@@ -33,6 +33,7 @@ export interface SkinCareLog {
     detan: boolean;
     oiling: boolean;
     sunscreen: boolean;
+    customRoutine?: string;
 }
 
 interface AppState {
@@ -53,7 +54,7 @@ interface AppState {
     deleteLearningLog: (id: string) => Promise<void>;
 
     skinCareLog: SkinCareLog | null;
-    saveSkinCare: (detan: boolean, oiling: boolean, sunscreen: boolean) => Promise<void>;
+    saveSkinCare: (detan: boolean, oiling: boolean, sunscreen: boolean, customRoutine?: string) => Promise<void>;
 
     // Authentication
     user: { id: number; name: string; email: string; picture?: string } | null;
@@ -67,8 +68,8 @@ interface AppState {
     // Analytics
     analyticsData: {
         totals: { calories: number; workouts: number; learningMinutes: number; skincareDays: number };
-        chartData: any[];
-        logs: any[];
+        chartData: { date: string; calories: number; learningMinutes: number; workoutCount: number }[];
+        logs: (DietLog | WorkoutLog | LearningLog | SkinCareLog)[];
     } | null;
     fetchAnalytics: (startDate: string, endDate: string, search?: string) => Promise<void>;
 }

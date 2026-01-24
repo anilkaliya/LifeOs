@@ -1,9 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useStore } from '../store/useStore';
+import type { DietLog, WorkoutLog, LearningLog, SkinCareLog } from '../store/useStore';
 import { format, subDays } from 'date-fns';
-import {
-    AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar
-} from 'recharts';
 import { Search, Activity, BookOpen, Sparkles, Utensils, Dumbbell } from 'lucide-react';
 
 export function AnalyticsDashboard() {
@@ -11,20 +9,16 @@ export function AnalyticsDashboard() {
     const [dateRange, setDateRange] = useState('7days'); // 7days, 30days
     const [search, setSearch] = useState('');
 
-    // Calculate date range
-    const getDates = () => {
+    useEffect(() => {
+        // Calculate date range
         const end = new Date();
         let start = new Date();
         if (dateRange === '7days') start = subDays(end, 7);
         if (dateRange === '30days') start = subDays(end, 30);
-        return {
-            startDate: format(start, 'yyyy-MM-dd'),
-            endDate: format(end, 'yyyy-MM-dd')
-        };
-    };
 
-    useEffect(() => {
-        const { startDate, endDate } = getDates();
+        const startDate = format(start, 'yyyy-MM-dd');
+        const endDate = format(end, 'yyyy-MM-dd');
+
         const timeoutId = setTimeout(() => {
             fetchAnalytics(startDate, endDate, search);
         }, 500); // Debounce search
@@ -33,24 +27,7 @@ export function AnalyticsDashboard() {
 
     if (!analyticsData) return <div className="text-white p-10">Loading analytics...</div>;
 
-    const { totals, chartData, logs } = analyticsData;
-
-    // Custom Tooltip for Charts
-    const CustomTooltip = ({ active, payload, label }: any) => {
-        if (active && payload && payload.length) {
-            return (
-                <div className="bg-gray-900 border border-white/10 p-3 rounded-lg shadow-xl">
-                    <p className="text-white font-bold mb-1">{format(new Date(label), 'MMM do, yyyy')}</p>
-                    {payload.map((p: any, index: number) => (
-                        <p key={index} style={{ color: p.color }} className="text-sm">
-                            {p.name}: {p.value}
-                        </p>
-                    ))}
-                </div>
-            );
-        }
-        return null;
-    };
+    const { totals, logs } = analyticsData;
 
     return (
         <div className="space-y-8 pb-10">
@@ -137,52 +114,6 @@ export function AnalyticsDashboard() {
                 </div>
             </div>
 
-            {/* Main Charts */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Calories & Learning Chart */}
-                <div className="bg-card/40 backdrop-blur-md border border-white/5 rounded-3xl p-6">
-                    <h3 className="text-lg font-bold text-white mb-6">Activity Trends</h3>
-                    <div className="h-[300px] w-full">
-                        <ResponsiveContainer width="100%" height="100%">
-                            <AreaChart data={chartData}>
-                                <defs>
-                                    <linearGradient id="colorCalories" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="#84cc16" stopOpacity={0.3} />
-                                        <stop offset="95%" stopColor="#84cc16" stopOpacity={0} />
-                                    </linearGradient>
-                                    <linearGradient id="colorLearning" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
-                                        <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
-                                    </linearGradient>
-                                </defs>
-                                <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" />
-                                <XAxis dataKey="date" stroke="#6b7280" tick={{ fontSize: 12 }} tickFormatter={(val) => format(new Date(val), 'dd MMM')} />
-                                <YAxis yAxisId="left" stroke="#84cc16" tick={{ fontSize: 12 }} />
-                                <YAxis yAxisId="right" orientation="right" stroke="#3b82f6" tick={{ fontSize: 12 }} />
-                                <Tooltip content={<CustomTooltip />} />
-                                <Area yAxisId="left" type="monotone" dataKey="calories" name="Calories" stroke="#84cc16" fillOpacity={1} fill="url(#colorCalories)" />
-                                <Area yAxisId="right" type="monotone" dataKey="learningMinutes" name="Learning (min)" stroke="#3b82f6" fillOpacity={1} fill="url(#colorLearning)" />
-                            </AreaChart>
-                        </ResponsiveContainer>
-                    </div>
-                </div>
-
-                {/* Workout Activity */}
-                <div className="bg-card/40 backdrop-blur-md border border-white/5 rounded-3xl p-6">
-                    <h3 className="text-lg font-bold text-white mb-6">Workout Frequency</h3>
-                    <div className="h-[300px] w-full">
-                        <ResponsiveContainer width="100%" height="100%">
-                            <BarChart data={chartData}>
-                                <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" />
-                                <XAxis dataKey="date" stroke="#6b7280" tick={{ fontSize: 12 }} tickFormatter={(val) => format(new Date(val), 'dd MMM')} />
-                                <Tooltip content={<CustomTooltip />} />
-                                <Bar dataKey="workoutCount" name="Workouts" fill="#a855f7" radius={[4, 4, 0, 0]} />
-                            </BarChart>
-                        </ResponsiveContainer>
-                    </div>
-                </div>
-            </div>
-
             {/* Detailed Activity Log */}
             <div className="bg-card/40 backdrop-blur-md border border-white/5 rounded-3xl p-6">
                 <h3 className="text-lg font-bold text-white mb-4">Activity History</h3>
@@ -198,36 +129,41 @@ export function AnalyticsDashboard() {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-white/5">
-                            {logs.length > 0 ? logs.map((log: any, i: number) => {
+                            {logs.length > 0 ? logs.map((log, i) => {
                                 let Icon = Activity;
                                 let color = "text-gray-400";
                                 let title = "";
                                 let sub = "";
                                 let metric = "";
 
-                                if (log.type === 'meal') {
+                                // Type guard helpers or manual checks
+                                if ('mealName' in log) { // DietLog
+                                    const dietLog = log as DietLog;
                                     Icon = Utensils;
                                     color = "text-lime-400";
-                                    title = log.mealName;
-                                    sub = log.description;
-                                    metric = `${log.calories} kcal`;
-                                } else if (log.type === 'workout') {
+                                    title = dietLog.mealName;
+                                    sub = dietLog.description;
+                                    metric = `${dietLog.calories} kcal`;
+                                } else if ('name' in log) { // WorkoutLog
+                                    const workoutLog = log as WorkoutLog;
                                     Icon = Dumbbell;
                                     color = "text-purple-400";
-                                    title = log.name;
-                                    sub = log.notes;
+                                    title = workoutLog.name;
+                                    sub = workoutLog.notes || '';
                                     metric = "Workout";
-                                } else if (log.type === 'learning') {
+                                } else if ('topic' in log) { // LearningLog
+                                    const learningLog = log as LearningLog;
                                     Icon = BookOpen;
                                     color = "text-blue-400";
-                                    title = log.topic;
+                                    title = learningLog.topic;
                                     sub = "";
-                                    metric = `${log.durationMinutes} min`;
-                                } else if (log.type === 'skincare') {
+                                    metric = `${learningLog.durationMinutes} min`;
+                                } else if ('sunscreen' in log) { // SkinCareLog
+                                    const skinLog = log as SkinCareLog;
                                     Icon = Sparkles;
                                     color = "text-emerald-400";
                                     title = "Skincare Routine";
-                                    sub = [log.detan && 'Detan', log.oiling && 'Oil', log.sunscreen && 'SPF', log.customRoutine].filter(Boolean).join(', ');
+                                    sub = [skinLog.detan && 'Detan', skinLog.oiling && 'Oil', skinLog.sunscreen && 'SPF', skinLog.customRoutine].filter(Boolean).join(', ');
                                     metric = "Logged";
                                 }
 

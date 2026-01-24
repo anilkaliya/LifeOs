@@ -98,7 +98,7 @@ export function SkinCareCard() {
                     ].map((item) => (
                         <div
                             key={item.key}
-                            onClick={() => handleToggle(item.key as any)}
+                            onClick={() => handleToggle(item.key as 'detan' | 'oiling' | 'sunscreen')}
                             className="flex items-center justify-between p-3 bg-white/5 rounded-xl cursor-pointer hover:bg-white/10 transition-all"
                         >
                             <div className="flex items-center gap-3">

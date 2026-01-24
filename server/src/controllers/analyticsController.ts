@@ -1,11 +1,11 @@
 import { Request, Response } from 'express';
-import { Op } from 'sequelize';
-import { Meal, Workout, LearningSession, SkinCareLog } from '../models'; // Ensure models are exported from index
+import { Op, WhereOptions } from 'sequelize';
+import { Meal, Workout, LearningSession, SkinCareLog, User } from '../models'; // Ensure models are exported from index
 
 export const getAnalytics = async (req: Request, res: Response) => {
     try {
-        const userId = (req.user as any)?.id;
-        const { startDate, endDate, search } = req.query;
+        const userId = (req.user as User)?.id;
+        const { startDate, endDate, search } = req.query as { startDate?: string; endDate?: string; search?: string };
 
         if (!userId) {
             return res.status(401).json({ error: 'Unauthorized' });
@@ -22,25 +22,25 @@ export const getAnalytics = async (req: Request, res: Response) => {
             }
         };
 
-        const mealWhere: any = { ...dateFilter };
-        const workoutWhere: any = { ...dateFilter };
-        const learningWhere: any = { ...dateFilter };
-        const skincareWhere: any = { ...dateFilter };
+        const mealWhere: WhereOptions = { ...dateFilter };
+        const workoutWhere: WhereOptions = { ...dateFilter };
+        const learningWhere: WhereOptions = { ...dateFilter };
+        const skincareWhere: WhereOptions = { ...dateFilter };
 
         if (search) {
             const searchStr = `%${search}%`;
-            mealWhere[Op.or] = [
+            (mealWhere as Record<symbol | string, any>)[Op.or] = [
                 { mealName: { [Op.iLike]: searchStr } },
                 { description: { [Op.iLike]: searchStr } }
             ];
-            workoutWhere[Op.or] = [
+            (workoutWhere as Record<symbol | string, any>)[Op.or] = [
                 { name: { [Op.iLike]: searchStr } },
                 { notes: { [Op.iLike]: searchStr } }
             ];
-            learningWhere[Op.or] = [
+            (learningWhere as Record<symbol | string, any>)[Op.or] = [
                 { topic: { [Op.iLike]: searchStr } }
             ];
-            skincareWhere[Op.or] = [
+            (skincareWhere as Record<symbol | string, any>)[Op.or] = [
                 { customRoutine: { [Op.iLike]: searchStr } }
             ];
         }
@@ -54,35 +54,43 @@ export const getAnalytics = async (req: Request, res: Response) => {
 
         // Aggregation
         let totalCalories = 0;
-        let totalWorkouts = workouts.length;
+        const totalWorkouts = workouts.length;
         let totalLearningMinutes = 0;
         let skincareStreak = 0; // Simplified logic for now, or total days logged
 
+        const getDateStr = (date: any): string => {
+            if (date instanceof Date) return date.toISOString().split('T')[0];
+            return String(date);
+        };
+
         // Daily Breakdown for Charts
-        const dailyData: Record<string, any> = {};
+        const dailyData: Record<string, { date: string; calories: number; learningMinutes: number; workoutCount: number }> = {};
 
         // Process Meals
-        meals.forEach((log: any) => {
+        meals.forEach((log) => {
+            const dateStr = getDateStr(log.date);
             totalCalories += log.calories || 0;
-            if (!dailyData[log.date]) dailyData[log.date] = { date: log.date, calories: 0, learningMinutes: 0, workoutCount: 0 };
-            dailyData[log.date].calories += log.calories || 0;
+            if (!dailyData[dateStr]) dailyData[dateStr] = { date: dateStr, calories: 0, learningMinutes: 0, workoutCount: 0 };
+            dailyData[dateStr].calories += log.calories || 0;
         });
 
         // Process Workouts
-        workouts.forEach((log: any) => {
-            if (!dailyData[log.date]) dailyData[log.date] = { date: log.date, calories: 0, learningMinutes: 0, workoutCount: 0 };
-            dailyData[log.date].workoutCount += 1;
+        workouts.forEach((log) => {
+            const dateStr = getDateStr(log.date);
+            if (!dailyData[dateStr]) dailyData[dateStr] = { date: dateStr, calories: 0, learningMinutes: 0, workoutCount: 0 };
+            dailyData[dateStr].workoutCount += 1;
         });
 
         // Process Learning
-        learningSessions.forEach((log: any) => {
+        learningSessions.forEach((log) => {
+            const dateStr = getDateStr(log.date);
             totalLearningMinutes += log.durationMinutes || 0;
-            if (!dailyData[log.date]) dailyData[log.date] = { date: log.date, calories: 0, learningMinutes: 0, workoutCount: 0 };
-            dailyData[log.date].learningMinutes += log.durationMinutes || 0;
+            if (!dailyData[dateStr]) dailyData[dateStr] = { date: dateStr, calories: 0, learningMinutes: 0, workoutCount: 0 };
+            dailyData[dateStr].learningMinutes += log.durationMinutes || 0;
         });
 
         // Process Skincare
-        skincareLogs.forEach((log: any) => {
+        skincareLogs.forEach((log) => {
             // For streak, we might just count days logged in this period
             if (log.detan || log.oiling || log.sunscreen || log.customRoutine) {
                 skincareStreak++;
@@ -91,10 +99,10 @@ export const getAnalytics = async (req: Request, res: Response) => {
 
         // Combined Logs List for "Activity History"
         const allLogs = [
-            ...meals.map((l: any) => ({ ...l.toJSON(), type: 'meal' })),
-            ...workouts.map((l: any) => ({ ...l.toJSON(), type: 'workout' })),
-            ...learningSessions.map((l: any) => ({ ...l.toJSON(), type: 'learning' })),
-            ...skincareLogs.map((l: any) => ({ ...l.toJSON(), type: 'skincare' }))
+            ...meals.map((l) => ({ ...l.toJSON(), type: 'meal', date: getDateStr(l.date) })),
+            ...workouts.map((l) => ({ ...l.toJSON(), type: 'workout', date: getDateStr(l.date) })),
+            ...learningSessions.map((l) => ({ ...l.toJSON(), type: 'learning', date: getDateStr(l.date) })),
+            ...skincareLogs.map((l) => ({ ...l.toJSON(), type: 'skincare', date: getDateStr(l.date) }))
         ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()); // Descending
 
         res.json({
@@ -104,12 +112,12 @@ export const getAnalytics = async (req: Request, res: Response) => {
                 learningMinutes: totalLearningMinutes,
                 skincareDays: skincareStreak
             },
-            chartData: Object.values(dailyData).sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime()),
+            chartData: Object.values(dailyData).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()),
             logs: allLogs
         });
 
-    } catch (error) {
-        console.error('Analytics Error:', error);
+    } catch (_error) {
+        console.error('Analytics Error:', _error);
         res.status(500).json({ error: 'Failed to fetch analytics' });
     }
 };

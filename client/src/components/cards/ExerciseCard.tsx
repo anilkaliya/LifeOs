@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { Plus, Dumbbell, Trash2 } from 'lucide-react';
-import { useStore } from '../../store/useStore';
+import { type WorkoutLog, useStore } from '../../store/useStore';
 import { LogWorkoutModal } from '../modals/LogWorkoutModal';
 import { WorkoutDetailModal } from '../modals/WorkoutDetailModal';
 
 export function ExerciseCard() {
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedLog, setSelectedLog] = useState<any>(null);
+    const [selectedLog, setSelectedLog] = useState<WorkoutLog | null>(null);
     const { workoutLogs, deleteWorkoutLog } = useStore();
 
     return (

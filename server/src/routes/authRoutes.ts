@@ -6,7 +6,7 @@ const router = Router();
 
 // Local Login
 router.post('/login', (req, res, next) => {
-    passport.authenticate('local', (err: any, user: any, info: any) => {
+    passport.authenticate('local', (err: Error | null, user: User | false, info: { message?: string } | undefined) => {
         if (err) return next(err);
         if (!user) return res.status(401).json({ error: info?.message || 'Authentication failed' });
 
@@ -31,12 +31,12 @@ router.post('/register', async (req, res) => {
             return res.status(400).json({ error: 'Email already in use' });
         }
 
-        const user = await User.create({ name, email, password });
+        await User.create({ name, email, password });
 
         // Don't auto-login after register
         res.json({ message: 'Registration successful' });
 
-    } catch (error) {
+    } catch (_error) {
         res.status(500).json({ error: 'Registration failed' });
     }
 });

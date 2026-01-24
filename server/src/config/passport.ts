@@ -64,8 +64,8 @@ passport.use(
 );
 
 // Serialize user to session
-passport.serializeUser((user: any, done) => {
-    done(null, user.id);
+passport.serializeUser((user: Express.User, done) => {
+    done(null, (user as User).id);
 });
 
 // Deserialize user from session

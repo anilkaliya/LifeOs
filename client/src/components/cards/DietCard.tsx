@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { Plus, Utensils, Trash2 } from 'lucide-react';
-import { useStore } from '../../store/useStore';
+import { type DietLog, useStore } from '../../store/useStore';
 import { LogMealModal } from '../modals/LogMealModal';
 import { DietDetailModal } from '../modals/DietDetailModal';
 
 export function DietCard() {
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedLog, setSelectedLog] = useState<any>(null);
+    const [selectedLog, setSelectedLog] = useState<DietLog | null>(null);
     const { dietLogs, deleteDietLog } = useStore();
 
     const totalCalories = dietLogs.reduce((acc, log) => acc + log.calories, 0);

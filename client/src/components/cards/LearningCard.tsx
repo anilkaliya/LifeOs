@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { BookOpen, Plus, Trash2 } from 'lucide-react';
-import { useStore } from '../../store/useStore';
+import { type LearningLog, useStore } from '../../store/useStore';
 import { isSameDay, parseISO } from 'date-fns';
 import { LogLearningModal } from '../modals/LogLearningModal';
 import { LearningDetailModal } from '../modals/LearningDetailModal';
@@ -8,7 +8,7 @@ import { LearningDetailModal } from '../modals/LearningDetailModal';
 export function LearningCard() {
     const { learningLogs, deleteLearningLog, selectedDate } = useStore();
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedLog, setSelectedLog] = useState<any>(null);
+    const [selectedLog, setSelectedLog] = useState<LearningLog | null>(null);
 
     // Filter logs for the selected date
     const todaysLogs = Array.isArray(learningLogs) ? learningLogs.filter(log => isSameDay(parseISO(log.date), selectedDate)) : [];

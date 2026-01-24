@@ -1,5 +1,5 @@
 import React from 'react';
-import { LayoutDashboard, Calendar, PieChart, Settings, Menu, LogOut } from 'lucide-react';
+import { LayoutDashboard, Calendar, PieChart, Settings, Menu, LogOut, type LucideProps } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { useStore } from '../store/useStore';
 
@@ -34,21 +34,32 @@ function UserProfile() {
     );
 }
 
+interface NavItemProps {
+    icon: React.ForwardRefExoticComponent<Omit<LucideProps, "ref"> & React.RefAttributes<SVGSVGElement>>;
+    label: string;
+    active?: boolean;
+    onClick?: () => void;
+    isOpen?: boolean;
+}
+
+const NavItem = ({ icon: Icon, label, active, onClick, isOpen }: NavItemProps) => {
+    return (
+        <div
+            onClick={onClick}
+            className={cn(
+                "p-3 rounded-xl flex items-center gap-3 cursor-pointer transition-all",
+                active ? "bg-white/10 text-white" : "hover:bg-white/5 text-gray-400 hover:text-white"
+            )}
+        >
+            <Icon size={20} />
+            <span className={cn("font-medium", !isOpen && "lg:hidden lg:group-hover:block")}>{label}</span>
+        </div>
+    );
+};
+
 export function Layout({ children }: { children: React.ReactNode }) {
     const [isOpen, setIsOpen] = React.useState(false);
     const { user } = useStore();
-
-    const NavItem = ({ icon: Icon, label, active, onClick }: { icon: any; label: string; active?: boolean; onClick?: () => void }) => {
-        return (
-            <div
-                onClick={onClick}
-                className={`p-3 rounded-xl flex items-center gap-3 cursor-pointer transition-all ${active ? 'bg-white/10 text-white' : 'hover:bg-white/5 text-gray-400 hover:text-white'}`}
-            >
-                <Icon size={20} />
-                <span className={cn("font-medium", !isOpen && "lg:hidden")}>{label}</span>
-            </div>
-        );
-    };
 
     return (
         <div className="flex min-h-screen bg-background text-white overflow-hidden">
@@ -69,10 +80,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
                     </div>
 
                     <nav className="flex-1 space-y-2">
-                        <NavItem icon={LayoutDashboard} label="Dashboard" active={window.location.pathname === '/'} onClick={() => window.location.href = '/'} />
-                        <NavItem icon={PieChart} label="Analytics" active={window.location.pathname === '/analytics'} onClick={() => window.location.href = '/analytics'} />
-                        <NavItem icon={Calendar} label="History" />
-                        <NavItem icon={Settings} label="Settings" />
+                        <NavItem icon={LayoutDashboard} label="Dashboard" active={window.location.pathname === '/'} onClick={() => window.location.href = '/'} isOpen={isOpen} />
+                        <NavItem icon={PieChart} label="Analytics" active={window.location.pathname === '/analytics'} onClick={() => window.location.href = '/analytics'} isOpen={isOpen} />
+                        <NavItem icon={Calendar} label="History" isOpen={isOpen} />
+                        <NavItem icon={Settings} label="Settings" isOpen={isOpen} />
                     </nav>
 
                     <div className="mt-auto">

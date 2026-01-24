@@ -1,16 +1,16 @@
 import { Request, Response } from 'express';
-import { SkinCareLog } from '../models';
+import { SkinCareLog, User } from '../models';
 
 export const getSkinCareLog = async (req: Request, res: Response) => {
     try {
-        const userId = (req.user as any)?.id;
+        const userId = (req.user as User)?.id;
         const { date } = req.params;
-        let log = await SkinCareLog.findOne({ where: { date, userId } });
+        const log = await SkinCareLog.findOne({ where: { date, userId } });
         if (!log) {
             return res.json({ date, detan: false, oiling: false, sunscreen: false });
         }
         res.json(log);
-    } catch (error) {
+    } catch (_error) {
         res.status(500).json({ error: 'Failed to fetch skincare log' });
     }
 };
@@ -20,7 +20,7 @@ export const updateSkinCareLog = async (req: Request, res: Response) => {
         const userId = (req.user as any)?.id;
         const { date, detan, oiling, sunscreen, customRoutine } = req.body;
 
-        const [log, created] = await SkinCareLog.findOrCreate({
+        const [log, _created] = await SkinCareLog.findOrCreate({
             where: { date, userId },
             defaults: {
                 date,
@@ -40,7 +40,7 @@ export const updateSkinCareLog = async (req: Request, res: Response) => {
 
         await log.save();
         res.json(log);
-    } catch (error) {
+    } catch (_error) {
         res.status(500).json({ error: 'Failed to update skincare log' });
     }
 };
