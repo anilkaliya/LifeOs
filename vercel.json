@@ -19,6 +19,10 @@
             "destination": "/server/src/index.ts"
         },
         {
+            "source": "/((?!api/|assets/|.*\\..*).*)",
+            "destination": "/client/index.html"
+        },
+        {
             "source": "/(.*)",
             "destination": "/client/$1"
         }
