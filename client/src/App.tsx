@@ -35,10 +35,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<Login />} />
-// In App.tsx
-        import {AnalyticsDashboard} from './components/AnalyticsDashboard';
 
-        // ...
 
         <Route
           path="/"
